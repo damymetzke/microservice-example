@@ -90,8 +90,30 @@ func list_orders(w http.ResponseWriter, req *http.Request) {
 }
 
 func create_order(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+  response, err := http.Post("http://order-processing/orders", "application/json", req.Body)
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		// Handle the non-OK status code appropriately
+		http.Error(w, fmt.Sprintf("Server returned non-OK status: %v", response.StatusCode), http.StatusInternalServerError)
+		return
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
 
 func main() {

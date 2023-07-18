@@ -16,3 +16,8 @@ services:
     build:
       context: ./user_management
       dockerfile: Dockerfile
+
+  order-processing:
+    build:
+      context: ./order_processing
+      dockerfile: Dockerfile

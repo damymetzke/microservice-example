@@ -63,8 +63,30 @@ func list_users(w http.ResponseWriter, req *http.Request) {
 }
 
 func list_orders(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, `{"message":"Hello Orders!"}`)
+  response, err := http.Get("http://order-processing/orders")
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		// Handle the non-OK status code appropriately
+		http.Error(w, fmt.Sprintf("Server returned non-OK status: %v", response.StatusCode), http.StatusInternalServerError)
+		return
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
 
 func create_order(w http.ResponseWriter, req *http.Request) {

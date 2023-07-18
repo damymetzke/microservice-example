@@ -6,3 +6,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
+
+  product-catalog:
+    build:
+      context: ./product_catalog
+      dockerfile: Dockerfile

@@ -1,7 +1,7 @@
 import express from 'express';
 
 const app = express();
-const port = 8080;
+const port = 80;
 
 app.get('/products', (_, res) => {
   res.send({message: "Hello from the microservice"});

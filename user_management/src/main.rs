@@ -1,4 +1,4 @@
-use actix_web::{get, web, App, HttpServer, Responder};
+use actix_web::{get, web, App, HttpServer, Responder, HttpRequest};
 
 #[get("/users")]
 async fn list_users() -> impl Responder {
@@ -10,10 +10,16 @@ async fn get_user(id: web::Path<i32>) -> impl Responder {
     format!("Hello user {id}!")
 }
 
-#[actix_web::main] // or #[tokio::main]
+#[get("*")]
+async fn failed(req: HttpRequest) -> impl Responder {
+    println!("{}", req.path());
+    ""
+}
+
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| App::new().service(list_users).service(get_user))
-        .bind(("127.0.0.1", 8080))?
+        .bind(("0.0.0.0", 80))?
         .run()
         .await
 }

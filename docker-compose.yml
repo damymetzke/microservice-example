@@ -11,3 +11,8 @@ services:
     build:
       context: ./product_catalog
       dockerfile: Dockerfile
+
+  user-management:
+    build:
+      context: ./user_management
+      dockerfile: Dockerfile

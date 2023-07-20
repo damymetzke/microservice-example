@@ -1,3 +1,4 @@
+import json
 from flask import Flask, jsonify, request
 import requests
 
@@ -7,7 +8,16 @@ app = Flask(__name__)
 
 @app.route('/orders', methods=["GET"])
 def list_orders():
-    return {"orders": orders}
+    result = []
+    print(orders)
+
+    for order in orders:
+        user = requests.get(f'http://user-management/users/{order["user_id"]}')
+        result.append({
+            "user": user.json(),
+        })
+
+    return {"orders": result}
 
 @app.route('/orders', methods=["POST"])
 def create_order():
@@ -15,13 +25,8 @@ def create_order():
     if not order_data:
         return jsonify({'message': 'Invalid JSON format'}), 400
 
-    print(order_data)
-
     user_id = order_data.get('user_id')
     cart = order_data.get('cart')
-
-    print(user_id)
-    print(cart)
 
     if user_id is None or cart is None:
         return jsonify({'message': 'Missing required fields'}), 400

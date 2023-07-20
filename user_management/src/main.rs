@@ -10,17 +10,17 @@ struct User {
 
 const USERS: [User; 3] = [
     User {
-        id: 0,
+        id: 1,
         name: "Alice",
         email: "alice@example.com",
     },
     User {
-        id: 1,
+        id: 2,
         name: "Bob",
         email: "bob@example.com",
     },
     User {
-        id: 2,
+        id: 3,
         name: "Charly",
         email: "charly@example.com",
     },

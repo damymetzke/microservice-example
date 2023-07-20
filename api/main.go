@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -9,7 +10,34 @@ import (
 )
 
 func make_get_request(w http.ResponseWriter, url string) {
-  response, err := http.Get(url)
+	response, err := http.Get(url)
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		// Handle the non-OK status code appropriately
+		http.Error(w, fmt.Sprintf("Server returned non-OK status: %v", response.StatusCode), http.StatusInternalServerError)
+		return
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		// Handle the error appropriately
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func make_post_request(w http.ResponseWriter, request_body io.ReadCloser, url string) {
+	response, err := http.Post(url, "application/json", request_body)
 	if err != nil {
 		// Handle the error appropriately
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -36,42 +64,19 @@ func make_get_request(w http.ResponseWriter, url string) {
 }
 
 func list_products(w http.ResponseWriter, req *http.Request) {
-  make_get_request(w, "http://product-catalog/products/")
+	make_get_request(w, "http://product-catalog/products/")
 }
 
 func list_users(w http.ResponseWriter, req *http.Request) {
-  make_get_request(w, "http://user-management/users")
+	make_get_request(w, "http://user-management/users")
 }
 
 func list_orders(w http.ResponseWriter, req *http.Request) {
-  make_get_request(w, "http://order-processing/orders")
+	make_get_request(w, "http://order-processing/orders")
 }
 
 func create_order(w http.ResponseWriter, req *http.Request) {
-  response, err := http.Post("http://order-processing/orders", "application/json", req.Body)
-	if err != nil {
-		// Handle the error appropriately
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		// Handle the non-OK status code appropriately
-		http.Error(w, fmt.Sprintf("Server returned non-OK status: %v", response.StatusCode), http.StatusInternalServerError)
-		return
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		// Handle the error appropriately
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
+	make_post_request(w, req.Body, "http://order-processing/orders")
 }
 
 func main() {

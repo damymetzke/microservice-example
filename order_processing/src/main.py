@@ -18,7 +18,7 @@ def list_orders():
         for cart_item in order["cart"]:
             product = requests.get(f'http://product-catalog/products/{cart_item["product_id"]}')
             cart.append({
-                "product": product.json(),
+                "product": product.json()["products"],
                 "amount": cart_item["amount"]
             })
 
